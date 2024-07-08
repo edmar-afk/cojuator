@@ -1,0 +1,132 @@
+{% load static %}<div class="iq-sidebar">
+	<div class="iq-sidebar-logo d-flex justify-content-between">
+		<h2 class="h2">Cuajotor</h2>
+
+		<div class="iq-menu-bt align-self-center">
+			<div class="wrapper-menu">
+				<div class="line-menu half start"></div>
+				<div class="line-menu"></div>
+				<div class="line-menu half end"></div>
+			</div>
+		</div>
+	</div>
+	<div id="sidebar-scrollbar">
+		<nav class="iq-sidebar-menu">
+			<ul class="iq-menu">
+				<li class="mt-4">
+					<a
+						href="{% url 'homepage' %}"
+						class="iq-waves-effect">
+						<i class="ri-home-4-line"></i>
+						<span>Dashboard</span>
+					</a>
+				</li>
+				<li class="">
+					<a
+						href="{% url 'checkout' %}"
+						class="iq-waves-effect">
+						<i class="fa fa-calculator" aria-hidden="true"></i>
+						<span>Checkout Product</span>
+					</a>
+				</li>
+				<li class="">
+					<a
+						href="{% url 'checkoutHistory' %}"
+						class="iq-waves-effect">
+						<i class="fa fa-history" aria-hidden="true"></i>
+						<span>Checkout History</span>
+					</a>
+				</li>
+				<li class="iq-menu-title mt-4">
+					<i class="ri-separator"></i>
+					<span>Inventory</span>
+				</li>
+				<li class="">
+					<a
+						href="{% url 'products' %}"
+						class="iq-waves-effect">
+						<i class="fas fa-boxes"></i>
+						<span>Products</span>
+					</a>
+				</li>
+				<li class="">
+					<a
+						href="{% url 'category' %}"
+						class="iq-waves-effect">
+						<i
+							class="fa fa-sort-alpha-asc"
+							aria-hidden="true"></i>
+						<span>Category</span>
+					</a>
+				</li>
+				<!-- <li>
+					<a
+						href="todo.html"
+						class="iq-waves-effect">
+						<i class="fa-solid fa-arrow-trend-up"></i>
+						<span>Download Report</span>
+					</a>
+				</li> -->
+			</ul>
+		</nav>
+		<div class="p-3"></div>
+	</div>
+</div>
+<!-- TOP Nav Bar -->
+<div class="iq-top-navbar">
+	<div class="iq-navbar-custom">
+		<div class="iq-sidebar-logo">
+			<div class="top-logo">
+				<a
+					href="{% url 'homepage' %}"
+					class="logo">
+					<img
+						src="images/logo.png"
+						class="img-fluid"
+						alt="" />
+					<span>Cuajotor</span>
+				</a>
+			</div>
+		</div>
+
+		<nav class="navbar navbar-expand-lg navbar-light p-0">
+			<div class="iq-menu-bt align-self-center">
+				<div class="wrapper-menu">
+					<div class="line-menu half start"></div>
+					<div class="line-menu"></div>
+					<div class="line-menu half end"></div>
+				</div>
+			</div>
+			<div
+				class="collapse navbar-collapse"
+				id="navbarSupportedContent"></div>
+			<ul class="navbar-list">
+				<li>
+					<a
+						href="#"
+						class="search-toggle iq-waves-effect bg-primary text-white">
+						<i
+							class="fa fa-user-circle"
+							aria-hidden="true"></i>
+					</a>
+					<div class="iq-sub-dropdown iq-user-dropdown">
+						<div class="iq-card iq-card-block iq-card-stretch iq-card-height shadow-none m-0">
+							<div class="iq-card-body p-0">
+								<div class="d-inline-block w-100 text-center p-3">
+									<a
+										class="iq-bg-danger iq-sign-btn"
+										href="sign-in.html"
+										role="button">
+										Sign out
+										<i class="ri-login-box-line ml-2"></i>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>
+<!-- TOP Nav Bar END -->
