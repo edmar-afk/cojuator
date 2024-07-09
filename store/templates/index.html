@@ -133,11 +133,10 @@
 													This Month
 												</a>
 											</li>
-											
 										</ul>
 									</div>
 								</div>
-								
+
 								<div id="chart"></div>
 							</div>
 						</div>
@@ -172,7 +171,6 @@
 							</div>
 						</div>
 					</div>
-					
 				</div>
 			</div>
 		</div>
@@ -184,22 +182,22 @@
 			var current_report = "{{current_history}}";
 			var day1 = parseInt(current_report);
 
-			var day2_report = "{{day_two_history}}";
+			var day2_report = "{{yesterday_history}}";
 			var day2 = parseInt(day2_report);
 
-			var day3_report = "{{day_three_history}}";
+			var day3_report = "{{three_days_ago_history}}";
 			var day3 = parseInt(day3_report);
 
-			var day4_report = "{{day_four_history}}";
+			var day4_report = "{{four_days_ago_history}}";
 			var day4 = parseInt(day4_report);
 
-			var day5_report = "{{day_five_history}}";
+			var day5_report = "{{five_days_ago_history}}";
 			var day5 = parseInt(day5_report);
 
-			var day6_report = "{{day_six_history}}";
+			var day6_report = "{{six_days_ago_history}}";
 			var day6 = parseInt(day6_report);
 
-			var day7_report = "{{day_seven_history}}";
+			var day7_report = "{{seven_days_ago_history}}";
 			var day7 = parseInt(day7_report);
 
 			var options = {
@@ -213,7 +211,15 @@
 					},
 				],
 				xaxis: {
-					categories: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+					categories: [
+						"{{current.date}}",
+						"{{yesterday.date}}",
+						"{{two_days_ago.date}}",
+						"{{three_days_ago.date}}",
+						"{{four_days_ago.date}}",
+						"{{five_days_ago.date}}",
+						"{{six_days_ago.date}}",
+					],
 				},
 			};
 

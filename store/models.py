@@ -18,5 +18,5 @@ class SoldItems(models.Model):
     product_name = models.ForeignKey(Products, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     price = models.IntegerField()
-    sold_date = models.DateTimeField()
+    sold_date = models.DateTimeField(auto_now_add=True)
     

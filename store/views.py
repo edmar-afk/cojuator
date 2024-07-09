@@ -2,9 +2,7 @@ from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
-from django.contrib.auth import authenticate, login
-from django.db.models import Q
+from django.contrib.auth import authenticate, login as auth_login
 from .models import Products, Category, SoldItems
 from datetime import datetime
 from decimal import Decimal
@@ -13,8 +11,67 @@ from datetime import timedelta
 from django.db.models import Sum, F, FloatField, ExpressionWrapper, Max
 today = timezone.now().date()
 from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
 
+
+
+def userLogin(request):
+    if request.method == 'POST':
+        phone_num = request.POST.get('phone_num')
+        password = request.POST.get('password')
+
+        info = authenticate(username=phone_num, password=password)
+        if info is not None:
+            auth_login(request, info)
+            if info.is_staff or info.is_superuser:
+                return redirect('homepage')
+        else:
+            messages.error(request, "Invalid email or password")
+            return redirect('userLogin')
+    return render(request, 'login.html')
+
+
+def logoutUser(request):
+    auth.logout(request)
+    messages.success(request, "Logged out Successfully!")
+    return redirect('userLogin')
+
+def staff(request):
+    staffs = User.objects.all().order_by('-id')
+    
+    
+    if request.method == 'POST':
+         
+        fullname = request.POST['staff_name']
+        mobile_num = request.POST['mobile_num']
+        gender = request.POST['gender']
+        password1 = request.POST['password1']
+        password2 = request.POST['password2']
+        
+        if password1 == password2:
+            if User.objects.filter(username=mobile_num).exists():
+                messages.error(request, 'Phone number already taken.')
+                return redirect(request.META.get('HTTP_REFERER'))
+
+            else:
+                seniors = User.objects.create_user(
+                    first_name=fullname, username=mobile_num, last_name=gender, password=password1, is_staff=True, is_superuser=False )
+                seniors.save()
+                
+                messages.success(request, 'Staff Account created')
+                return redirect(request.META.get('HTTP_REFERER'))
+        else:
+            messages.error(request, 'Password does not match.')
+            return redirect(request.META.get('HTTP_REFERER'))    
+    
+    
+    
+    context = {
+        'staffs':staffs
+    }
+    
+    return render(request, 'saleslady.html', context)
 
 def checkoutHistory(request):
     checkoutHistory = SoldItems.objects.all().order_by('-id')
@@ -76,43 +133,28 @@ def homepage(request):
     products = Products.objects.all().order_by('-id')
     
     # -----REPORT ------
-    
-    # Current day (last 24 hours)
-    # Current day (last 24 hours)
-    current_date_start = timezone.now() - timedelta(days=1)
-    current_date_end = timezone.now()
-    current_history = SoldItems.objects.filter(sold_date__gte=current_date_start, sold_date__lt=current_date_end).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
 
-    # Previous day (24 to 48 hours ago)
-    day_two_start = timezone.now() - timedelta(days=2)
-    day_two_end = timezone.now() - timedelta(days=1)
-    day_two_history = SoldItems.objects.filter(sold_date__gte=day_two_start, sold_date__lt=day_two_end).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    current = timezone.now()
 
-    # Day before previous day (48 to 72 hours ago)
-    day_three_start = timezone.now() - timedelta(days=3)
-    day_three_end = timezone.now() - timedelta(days=2)
-    day_three_history = SoldItems.objects.filter(sold_date__gte=day_three_start, sold_date__lt=day_three_end).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    # Calculate the dates for the last 7 days
+    yesterday = current - timedelta(days=1)
+    two_days_ago = current - timedelta(days=2)
+    three_days_ago = current - timedelta(days=3)
+    four_days_ago = current - timedelta(days=4)
+    five_days_ago = current - timedelta(days=5)
+    six_days_ago = current - timedelta(days=6)
+    seven_days_ago = current - timedelta(days=7)
 
-    # Day 4 (72 to 96 hours ago)
-    day_four_start = timezone.now() - timedelta(days=4)
-    day_four_end = timezone.now() - timedelta(days=3)
-    day_four_history = SoldItems.objects.filter(sold_date__gte=day_four_start, sold_date__lt=day_four_end).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    # Fetch the total sold items for each date
+    current_history = SoldItems.objects.filter(sold_date__date=current.date()).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    yesterday_history = SoldItems.objects.filter(sold_date__date=yesterday.date()).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    two_days_ago_history = SoldItems.objects.filter(sold_date__date=two_days_ago.date()).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    three_days_ago_history = SoldItems.objects.filter(sold_date__date=three_days_ago.date()).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    four_days_ago_history = SoldItems.objects.filter(sold_date__date=four_days_ago.date()).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    five_days_ago_history = SoldItems.objects.filter(sold_date__date=five_days_ago.date()).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    six_days_ago_history = SoldItems.objects.filter(sold_date__date=six_days_ago.date()).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
+    seven_days_ago_history = SoldItems.objects.filter(sold_date__date=seven_days_ago.date()).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
 
-    # Day 5 (96 to 120 hours ago)
-    day_five_start = timezone.now() - timedelta(days=5)
-    day_five_end = timezone.now() - timedelta(days=4)
-    day_five_history = SoldItems.objects.filter(sold_date__gte=day_five_start, sold_date__lt=day_five_end).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
-
-    # Day 6 (120 to 144 hours ago)
-    day_six_start = timezone.now() - timedelta(days=6)
-    day_six_end = timezone.now() - timedelta(days=5)
-    day_six_history = SoldItems.objects.filter(sold_date__gte=day_six_start, sold_date__lt=day_six_end).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
-
-    # Day 7 (144 to 168 hours ago)
-    day_seven_start = timezone.now() - timedelta(days=7)
-    day_seven_end = timezone.now() - timedelta(days=6)
-    day_seven_history = SoldItems.objects.filter(sold_date__gte=day_seven_start, sold_date__lt=day_seven_end).aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
-   
     # ----- REPORT -----
     
     
@@ -128,7 +170,9 @@ def homepage(request):
     total_price_sold_today = sold_items_today.aggregate(Sum('price'))['price__sum'] or 0
 
     # Calculate total price and quantity of all products
-    total_price = Products.objects.aggregate(total=Sum('price'))['total'] or 0.0
+    total_price = SoldItems.objects.aggregate(
+    total=Sum(F('price') * F('quantity'))
+    )['total'] or 0.0
     total_quantity = Products.objects.aggregate(total_quantity=Sum('quantity'))['total_quantity'] or 0
 
     # Calculate total price of items sold today
@@ -162,12 +206,22 @@ def homepage(request):
         
         
         'current_history': current_history,
-        'day_two_history': day_two_history,
-        'day_three_history': day_three_history,
-        'day_four_history': day_four_history,
-        'day_five_history': day_five_history,
-        'day_six_history': day_six_history,
-        'day_seven_history': day_seven_history,
+        'yesterday_history': yesterday_history,
+        'two_days_ago_history': two_days_ago_history,
+        'three_days_ago_history': three_days_ago_history,
+        'four_days_ago_history': four_days_ago_history,
+        'five_days_ago_history': five_days_ago_history,
+        'six_days_ago_history': six_days_ago_history,
+        'seven_days_ago_history': seven_days_ago_history,
+        
+        'current': current,
+        'yesterday': yesterday,
+        'two_days_ago': two_days_ago,
+        'three_days_ago': three_days_ago,
+        'four_days_ago': four_days_ago,
+        'five_days_ago': five_days_ago,
+        'six_days_ago': six_days_ago,
+        
     }
 
     return render(request, 'index.html', context)
@@ -402,6 +456,46 @@ def removeCategory(request, category_id):
     messages.success(request, 'Category Deleted!')
     
     return redirect(request.META.get('HTTP_REFERER'))
+
+
+def removeStaff(request, staff_id):
+    User.objects.filter(id=staff_id).delete()
+    messages.success(request, 'Staff Deleted!')
+    
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+def editStaff(request, staff_id):
+    try:
+        staff = User.objects.get(pk=staff_id)
+    except ObjectDoesNotExist:
+        messages.error(request, 'Staff member not found.')
+        return redirect('some_view')  # Redirect to a relevant view or page
+
+    if request.method == 'POST':
+        fullname = request.POST.get('staff_name')
+        mobile_num = request.POST.get('mobile_num')
+        gender = request.POST.get('gender')
+        password = request.POST.get('password')
+
+        # Check if the new username (mobile_num) already exists, and it is not the current staff member's username
+        if User.objects.filter(username=mobile_num).exclude(pk=staff_id).exists():
+            messages.error(request, 'Username already exists.')
+            return render(request, 'edit_staff.html', {'staff': staff})  # Render the edit form with error message
+
+        # Update staff details
+        staff.first_name = fullname
+        staff.username = mobile_num
+        staff.last_name = gender
+        staff.set_password(password)  # Use set_password() to hash the password
+        staff.save()
+
+        messages.success(request, 'Staff Edited!')
+        return redirect(request.META.get('HTTP_REFERER'))
+
+    return render(request, 'edit_staff.html', {'staff': staff})
+
+
 
 
 def removeProduct(request, product_id):
